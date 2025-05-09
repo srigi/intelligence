@@ -15,8 +15,9 @@ if (!app.isPackaged && app.dock != null) {
 
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    fullscreenable: false,
+    width: app.isPackaged ? 400 : 1280, // make space for devtools
+    height: 660,
     webPreferences: {
       devTools: !app.isPackaged,
       preload: path.join(__dirname, 'preload.js'),
