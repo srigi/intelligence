@@ -1,0 +1,45 @@
+{
+  "name": "gemini-siri",
+  "productName": "Gemini Siri",
+  "version": "0.0.1",
+  "license": "MIT",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "dev": "electron-forge start --inspect-electron",
+    "make": "electron-forge make",
+    "lint": "eslint --ext .ts,.tsx .",
+    "tsc": "tsc -noEmit",
+    "package": "electron-forge package",
+    "publish": "electron-forge publish"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "~1.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "~7.8",
+    "@electron-forge/maker-deb": "~7.8",
+    "@electron-forge/maker-rpm": "~7.8",
+    "@electron-forge/maker-squirrel": "~7.8",
+    "@electron-forge/maker-zip": "~7.8",
+    "@electron-forge/plugin-auto-unpack-natives": "~7.8",
+    "@electron-forge/plugin-fuses": "~7.8",
+    "@electron-forge/plugin-vite": "~7.8",
+    "@electron/fuses": "~1.8",
+    "@types/electron-squirrel-startup": "^1.0",
+    "@types/node": "^22",
+    "@typescript-eslint/eslint-plugin": "~5.62",
+    "@typescript-eslint/parser": "~5.62",
+    "electron": "~36.2",
+    "eslint": "~8.57",
+    "eslint-plugin-import": "~2.31",
+    "ts-node": "~10.9",
+    "typescript": "~5.7",
+    "vite": "~6.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron"
+    ]
+  },
+  "packageManager": "pnpm@10.10.0+sha512.d615db246fe70f25dcfea6d8d73dee782ce23e2245e3c4f6f888249fb568149318637dca73c2c5c8ef2a4ca0d5657fb9567188bfab47f566d1ee6ce987815c39"
+}
