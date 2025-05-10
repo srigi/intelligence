@@ -38,6 +38,8 @@
     "eslint": "~8.57",
     "eslint-plugin-import": "~2.31",
     "postcss": "~8.5",
+    "prettier": "~3.5",
+    "prettier-plugin-tailwindcss": "~0.6",
     "tailwindcss": "~4.1",
     "ts-node": "~10.9",
     "typescript": "~5.7",
