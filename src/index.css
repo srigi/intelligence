@@ -29,4 +29,98 @@ body[data-scroll-locked] {
 
 button {
   cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+@keyframes hide {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(calc(100% + var(--viewport-padding)));
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes swipeOut {
+  from {
+    transform: translateX(16px);
+  }
+  to {
+    transform: translateX(calc(100% + var(--viewport-padding)));
+  }
+}
+
+.ToastViewport {
+  --viewport-padding: 25px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  max-width: 100vw;
+  outline: none;
+  padding: 25px;
+  position: fixed;
+  right: 0;
+  width: 390px;
+  z-index: 214;
+}
+.ToastRoot {
+  align-items: center;
+  background-color: var(--color-primary-400);
+  border: 1px solid var(--color-primary-200);
+  border-radius: 6px;
+  box-shadow:
+    hsl(206 22% 7% / 35%) 0 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0 10px 20px -15px;
+  column-gap: 15px;
+  display: grid;
+  grid-template-areas: 'title action' 'description action';
+  grid-template-columns: auto max-content;
+  padding: 15px;
+}
+.ToastRoot[data-state='open'] {
+  animation: slideIn 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ToastRoot[data-state='closed'] {
+  animation: hide 100ms ease-in;
+}
+.ToastRoot[data-swipe='move'] {
+  transform: translateX(16px);
+}
+.ToastRoot[data-swipe='cancel'] {
+  transform: translateX(0);
+  transition: transform 200ms ease-out;
+}
+.ToastRoot[data-swipe='end'] {
+  animation: swipeOut 100ms ease-out;
+}
+.ToastTitle {
+  color: var(--color-primary-50);
+  font-size: 15px;
+  font-weight: 500;
+  grid-area: title;
+  margin-bottom: 5px;
+}
+.ToastDescription {
+  color: var(--color-primary-100);
+  font-size: 13px;
+  grid-area: description;
+  line-height: 1.3;
+  margin: 0;
+}
+.ToastAction {
+  grid-area: action;
 }

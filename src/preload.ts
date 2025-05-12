@@ -4,6 +4,7 @@ import { contextBridge } from 'electron';
 import ElectronStore from 'electron-store';
 
 import { Settings } from '~/types/Settings';
+import { client } from '~/lib/gemini';
 
 declare global {
   interface Window {
@@ -11,6 +12,7 @@ declare global {
       settings: Settings;
       putSettings: (settings: Settings) => void;
       saveSelectedModel: (modelId: string) => void;
+      pingModel: () => Promise<boolean>;
     };
   }
 }
@@ -24,5 +26,13 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
   },
   saveSelectedModel(modelId: string) {
     settings.set('geminiModelId', modelId);
+  },
+  async pingModel() {
+    const res = await client.models.generateContent({
+      model: settings.get('geminiModelId'),
+      contents: 'Ping!',
+    });
+
+    return res.text === 'Ping!' || res.text === 'Pong!';
   },
 });

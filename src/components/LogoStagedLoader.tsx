@@ -3,7 +3,7 @@ import { RefObject, useImperativeHandle, useState } from 'react';
 export type RefType = {
   isAnimating: boolean;
   start: () => void;
-  stop: () => void;
+  stop: () => Promise<void>;
 };
 
 type Props = {
@@ -24,15 +24,21 @@ export default function LogoStagedLoader({ ref }: Props) {
       setIsAnimating(true);
     },
 
-    stop: () => {
-      if (animationStartTime != null && isAnimating) {
+    stop: () =>
+      new Promise<void>((resolve, reject) => {
+        if (animationStartTime == null || !isAnimating) {
+          return reject();
+        }
+
         const now = new Date();
         const runningTime = now.getTime() - animationStartTime.getTime();
         const rest = runningTime < GIF_DURATION ? GIF_DURATION - runningTime : GIF_DURATION - (runningTime % GIF_DURATION);
 
-        setTimeout(() => setIsAnimating(false), rest);
-      }
-    },
+        setTimeout(() => {
+          setIsAnimating(false);
+          resolve();
+        }, rest);
+      }),
   }));
 
   return (

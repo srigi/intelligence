@@ -4,10 +4,12 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 type Props = {
   onSubmit: () => void;
   onModelChange: (modelId: string) => void;
+  onModelTest: () => Promise<void>;
   savedModelId: string;
+  submittingEnabled: boolean;
 };
 
-export default function PromptArea({ onSubmit, onModelChange, savedModelId }: Props) {
+export default function PromptArea({ onSubmit, onModelChange, onModelTest, savedModelId, submittingEnabled }: Props) {
   const [selectedModelId, setSelectedModelId] = useState(savedModelId);
 
   return (
@@ -18,27 +20,36 @@ export default function PromptArea({ onSubmit, onModelChange, savedModelId }: Pr
       />
 
       <aside className="flex items-center justify-between gap-4 p-2">
-        <Select
-          onValueChange={(val) => {
-            setSelectedModelId(val);
-            onModelChange(val);
-          }}
-          value={selectedModelId}
-        >
-          <SelectTrigger className="h-7 w-[220px]">
-            <SelectValue placeholder="Select model" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="gemini-2.5-pro-preview-05-06">Gemini 2.5 Pro</SelectItem>
-              <SelectItem value="gemini-2.5-flash-preview-04-17">Gemini 2.5 Flash</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        <section className="flex items-center gap-2">
+          <Select
+            onValueChange={(val) => {
+              setSelectedModelId(val);
+              onModelChange(val);
+            }}
+            value={selectedModelId}
+          >
+            <SelectTrigger className="h-7 w-[220px]">
+              <SelectValue placeholder="Select model" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="gemini-2.5-pro-preview-05-06">Gemini 2.5 Pro</SelectItem>
+                <SelectItem value="gemini-2.5-flash-preview-04-17">Gemini 2.5 Flash</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <button
+            disabled={!submittingEnabled}
+            className="h-5 w-5 bg-primary-200 mask-[url('./assets/icons/testTubes.svg')] text-3xl hover:bg-primary-50"
+            title={submittingEnabled ? 'Test model connection' : 'Please set API key first'}
+            onClick={onModelTest}
+          />
+        </section>
 
         <button
+          disabled={!submittingEnabled}
           className="h-6 w-6 bg-primary-200 mask-[url('./assets/icons/send.svg')] text-3xl hover:bg-primary-50"
-          title="Submit"
+          title={submittingEnabled ? 'Submit' : 'Please set API key first'}
           onClick={onSubmit}
         />
       </aside>

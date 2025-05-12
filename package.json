@@ -13,7 +13,10 @@
     "publish": "electron-forge publish"
   },
   "dependencies": {
+    "@google/genai": "^0.13",
     "@radix-ui/react-select": "~2.2",
+    "@radix-ui/react-toast": "~1.2",
+    "class-variance-authority": "^0.7",
     "clsx": "~2.1",
     "electron-squirrel-startup": "~1.0",
     "electron-store": "~8.2",
