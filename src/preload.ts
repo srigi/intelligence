@@ -10,6 +10,7 @@ declare global {
     GeminiSiri: {
       settings: Settings;
       putSettings: (settings: Settings) => void;
+      saveSelectedModel: (modelId: string) => void;
     };
   }
 }
@@ -20,5 +21,8 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
   settings: settings.store,
   putSettings(settingsObj: Settings) {
     settings.set(settingsObj);
+  },
+  saveSelectedModel(modelId: string) {
+    settings.set('geminiModelId', modelId);
   },
 });

@@ -33,6 +33,8 @@ export function App() {
             }
           }
         }}
+        onModelChange={window.GeminiSiri.saveSelectedModel}
+        savedModelId={window.GeminiSiri.settings.geminiModelId}
       />
     </>
   );
