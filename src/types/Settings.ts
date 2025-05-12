@@ -4,5 +4,5 @@ export type Settings = {
   geminiApiKey: string;
   geminiModelId: string;
   mainWindowPosition: number[];
-  tools: Tool[];
+  enabledTools: Array<Tool['id']>;
 };

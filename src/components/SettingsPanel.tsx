@@ -1,16 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Settings } from '~/types/Settings';
+import { Tool } from '~/types/Tool';
+import Switch from '~/components/ui/Switch';
 
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  initialSettings: Settings;
   onSaveSettings: (settings: Settings) => void;
 };
 
-export default function SettingsPanel({ isOpen, onClose, initialSettings, onSaveSettings }: Props) {
-  const [settings, setSettings] = useState(initialSettings);
+export default function SettingsPanel({ isOpen, onClose, onSaveSettings }: Props) {
+  const [settings, setSettings] = useState<Settings>();
+  const [availableTools, setAvailableTools] = useState<Tool[]>([]);
+
+  function toggleTool(toolId: string) {
+    if (settings == null) return;
+    if (!availableTools.find((t) => t.id === toolId)) return;
+
+    const enabledTools = settings.enabledTools.includes(toolId) // is tool enabled
+      ? [...settings.enabledTools.filter((et) => et !== toolId)]
+      : [...settings.enabledTools, toolId];
+
+    onSaveSettings({ ...settings, enabledTools });
+  }
+
+  useEffect(() => {
+    setSettings(window.GeminiSiri.getSettings(setSettings));
+    window.GeminiSiri.getAvailableTools().then(setAvailableTools);
+  }, []);
+
+  if (settings == null || availableTools == null) {
+    return null;
+  }
 
   return (
     <>
@@ -31,19 +53,41 @@ export default function SettingsPanel({ isOpen, onClose, initialSettings, onSave
         </section>
 
         <section className="flex flex-1 flex-col justify-between gap-2">
-          <article className="flex flex-col gap-4 overflow-y-auto">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="api-key">Gemini API key</label>
-              <input
-                className="flex h-9 w-full rounded-md border border-primary-200 bg-transparent p-2 shadow-sm placeholder:text-gray-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                type="password"
-                id="api-key"
-                placeholder="Enter your Gemini API key"
-                value={settings.geminiApiKey}
-                onChange={(ev) => setSettings({ ...settings, geminiApiKey: ev.target.value })}
-              />
-            </div>
-          </article>
+          <div className="flex flex-col gap-4">
+            <article className="flex flex-col gap-4 overflow-y-auto">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="api-key">Gemini API key</label>
+                <input
+                  className="flex h-9 w-full rounded-md border border-primary-200 bg-transparent p-2 shadow-sm placeholder:text-gray-500 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                  type="password"
+                  id="api-key"
+                  placeholder="Enter your Gemini API key"
+                  value={settings.geminiApiKey}
+                  onChange={(ev) => setSettings({ ...settings, geminiApiKey: ev.target.value })}
+                />
+              </div>
+            </article>
+
+            <article className="">
+              <h2 className="py-3 text-3xl">Available tools</h2>
+              <ul className="flex flex-col gap-4 px-2">
+                {availableTools.map((tool) => (
+                  <li key={tool.id} className="grid grid-cols-[1fr_36px] grid-rows-[auto_1fr] items-start gap-x-2">
+                    <h3 className="text-xl" title={tool.id}>
+                      {tool.name}
+                    </h3>
+                    <Switch
+                      id={tool.id}
+                      className="self-center"
+                      checked={settings.enabledTools.includes(tool.id)}
+                      onClick={() => toggleTool(tool.id)}
+                    />
+                    <p className="col-span-2 text-sm leading-tight text-primary-200">{tool.description}</p>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          </div>
 
           <article className="flex justify-end">
             <button

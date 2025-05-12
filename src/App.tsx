@@ -43,7 +43,6 @@ export function App() {
       <SettingsPanel
         isOpen={isSettingsPanelOpen}
         onClose={() => setIsSettingsPanelOpen(false)}
-        initialSettings={window.GeminiSiri.settings}
         onSaveSettings={window.GeminiSiri.putSettings}
       />
 
