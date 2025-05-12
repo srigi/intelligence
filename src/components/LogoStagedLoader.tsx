@@ -7,12 +7,14 @@ export type RefType = {
 };
 
 type Props = {
+  className?: string;
   ref: RefObject<RefType | null>;
+  width: number;
 };
 
 const GIF_DURATION = 1200;
 
-export default function LogoStagedLoader({ ref }: Props) {
+export default function LogoStagedLoader({ className, ref, width }: Props) {
   const [animationStartTime, setAnimationStartTime] = useState<Date>();
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -42,7 +44,7 @@ export default function LogoStagedLoader({ ref }: Props) {
   }));
 
   return (
-    <main className="w-32">
+    <main className={className} style={{ width }}>
       {isAnimating ? <img src="assets/animations/logo.gif" alt="icon" /> : <img src="assets/icons/icon.png" alt="icon" />}
     </main>
   );

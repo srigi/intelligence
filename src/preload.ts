@@ -10,14 +10,18 @@ import { client } from '~/lib/gemini';
 declare global {
   interface Window {
     GeminiSiri: {
+      /* Settings */
       settings: Settings;
       getSettings: (reloadFn?: (newVal?: Settings, oldVal?: Settings) => void) => Settings;
       putSettings: (settings: Settings) => void;
 
+      /* Tools */
       getAvailableTools: () => Promise<Tool[]>;
 
+      /* Model */
       saveSelectedModel: (modelId: string) => void;
       pingModel: () => Promise<boolean>;
+      sendMessage: (message: string) => Promise<string>;
     };
   }
 }
@@ -25,6 +29,7 @@ declare global {
 const settings = new ElectronStore<Settings>();
 
 contextBridge.exposeInMainWorld('GeminiSiri', {
+  /* Settings */
   settings: settings.store,
   getSettings(reloadFn?: (newVal?: Settings, oldVal?: Settings) => void) {
     if (reloadFn != null) {
@@ -37,10 +42,12 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
     settings.set(settingsObj);
   },
 
+  /* Tools */
   async getAvailableTools() {
     return await ipcRenderer.invoke('get-available-tools');
   },
 
+  /* Model */
   saveSelectedModel(modelId: string) {
     settings.set('geminiModelId', modelId);
   },
@@ -51,5 +58,13 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
     });
 
     return res.text === 'Ping!' || res.text === 'Pong!';
+  },
+  async sendMessage(message: string) {
+    const res = await client.models.generateContent({
+      model: settings.get('geminiModelId'),
+      contents: message,
+    });
+
+    return res.text;
   },
 });
