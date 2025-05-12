@@ -21,6 +21,7 @@ declare global {
       /* Model */
       saveSelectedModel: (modelId: string) => void;
       pingModel: () => Promise<boolean>;
+      sendMessage: (message: string) => Promise<string>;
     };
   }
 }
@@ -58,5 +59,12 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
 
     return res.text === 'Ping!' || res.text === 'Pong!';
   },
-  startConversation() {},
+  async sendMessage(message: string) {
+    const res = await client.models.generateContent({
+      model: settings.get('geminiModelId'),
+      contents: message,
+    });
+
+    return res.text;
+  },
 });
