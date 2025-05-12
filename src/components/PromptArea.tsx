@@ -37,7 +37,7 @@ export default function PromptArea({ onSubmit, onModelChange, onModelTest, saved
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="gemini-2.5-pro-preview-05-06">Gemini 2.5 Pro</SelectItem>
+                <SelectItem value="gemini-2.5-pro-exp-03-25">Gemini 2.5 Pro</SelectItem>
                 <SelectItem value="gemini-2.5-flash-preview-04-17">Gemini 2.5 Flash</SelectItem>
               </SelectGroup>
             </SelectContent>

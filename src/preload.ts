@@ -1,5 +1,6 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { GenerateContentResponse } from '@google/genai';
 import { contextBridge, ipcRenderer } from 'electron';
 import ElectronStore from 'electron-store';
 
@@ -27,6 +28,7 @@ declare global {
   }
 }
 
+const MAX_TOOLS_ITERATIONS = 3; // TODO into settings
 const settings = new ElectronStore<Settings>();
 
 contextBridge.exposeInMainWorld('GeminiSiri', {
@@ -64,10 +66,45 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
     return res.text === 'Ping!' || res.text === 'Pong!';
   },
   async sendMessage(message: string) {
-    const res = await client.models.generateContent({
-      model: settings.get('geminiModelId'),
-      contents: message,
-    });
+    const model = settings.store.geminiModelId;
+    const availableTools: Tool[] = await ipcRenderer.invoke('get-available-tools');
+    const enabledTools = settings.store.enabledTools;
+    const toolsForMessage = availableTools
+      .filter((tool) => enabledTools.includes(tool.id))
+      .map((tool) => ({
+        name: tool.id,
+        description: tool.description,
+      }));
+
+    const contents = [
+      {
+        role: 'user',
+        parts: [{ text: `${message} Use the provided tool(s) preemptively!` }],
+      },
+    ];
+    let i = 0;
+    let res: GenerateContentResponse;
+    do {
+      i++;
+      res = await client.models.generateContent({
+        config: {
+          tools: [{ functionDeclarations: toolsForMessage }],
+        },
+        contents,
+        model,
+      });
+      if (!res.functionCalls?.length) {
+        return res.text;
+      }
+
+      contents.push({ role: 'model', parts: [{ text: JSON.stringify(res.functionCalls) }] });
+
+      const functionCallResults = await Promise.all(res.functionCalls.map(async (fc) => [fc.name, await this.runTool(fc.name, fc.args)]));
+      contents.push({
+        role: 'user',
+        parts: [{ text: JSON.stringify(functionCallResults.map(([name, result]) => ({ [name]: result }))) }],
+      });
+    } while (i < MAX_TOOLS_ITERATIONS);
 
     return res.text;
   },
