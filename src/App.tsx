@@ -1,15 +1,23 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
-import LogoStagedLoader, { RefType } from '~/components/LogoStagedLoader';
 import Navbar from '~/components/Navbar';
+import LogoStagedLoader, { RefType } from '~/components/LogoStagedLoader';
+import SettingsPanel from '~/components/SettingsPanel';
 import PromptArea from '~/components/PromptArea';
 
 export function App() {
+  const [isSettingsPanelOpen, setIsSettingsPanelOpen] = useState(false);
   const logoLoaderRef = useRef<RefType>(null);
 
   return (
     <>
-      <Navbar />
+      <Navbar onSettingsClick={() => setIsSettingsPanelOpen(!isSettingsPanelOpen)} />
+      <SettingsPanel
+        isOpen={isSettingsPanelOpen}
+        onClose={() => setIsSettingsPanelOpen(false)}
+        initialSettings={window.GeminiSiri.settings}
+        onSaveSettings={window.GeminiSiri.putSettings}
+      />
 
       <section className="flex flex-1 flex-col items-center justify-center">
         <LogoStagedLoader ref={logoLoaderRef} />

@@ -1,2 +1,24 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { contextBridge } from 'electron';
+import ElectronStore from 'electron-store';
+
+import { Settings } from '~/types/Settings';
+
+declare global {
+  interface Window {
+    GeminiSiri: {
+      settings: Settings;
+      putSettings: (settings: Settings) => void;
+    };
+  }
+}
+
+const settings = new ElectronStore<Settings>();
+
+contextBridge.exposeInMainWorld('GeminiSiri', {
+  settings: settings.store,
+  putSettings(settingsObj: Settings) {
+    settings.set(settingsObj);
+  },
+});
