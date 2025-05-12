@@ -40,8 +40,8 @@ export function App() {
         onSaveSettings={window.GeminiSiri.putSettings}
       />
 
-      <section className="flex flex-1 flex-col items-center justify-center">
-        <LogoStagedLoader ref={logoLoaderRef} />
+      <section className="relative flex flex-1 flex-col items-center justify-center">
+        <LogoStagedLoader ref={logoLoaderRef} width={128} />
       </section>
 
       <PromptArea
