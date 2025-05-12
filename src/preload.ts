@@ -17,6 +17,7 @@ declare global {
 
       /* Tools */
       getAvailableTools: () => Promise<Tool[]>;
+      runTool: (toolId: string, args?: Record<string, unknown>) => Promise<Record<string, unknown>>;
 
       /* Model */
       saveSelectedModel: (modelId: string) => void;
@@ -45,6 +46,9 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
   /* Tools */
   async getAvailableTools() {
     return await ipcRenderer.invoke('get-available-tools');
+  },
+  async runTool(toolId: string, args?: Record<string, unknown>) {
+    return ipcRenderer.invoke('run-tool', toolId, args);
   },
 
   /* Model */

@@ -25,7 +25,7 @@ if (!app.isPackaged && app.dock != null) {
 
 ElectronStore.initRenderer();
 
-const createMainWindow = () => {
+function createMainWindow() {
   const display = screen.getPrimaryDisplay();
   const [x, y] = settings.get('mainWindowPosition', [(display.bounds.width - MAIN_WINDOW_WIDTH) / 2, 150]);
   const mainWindow = new BrowserWindow({
@@ -57,7 +57,36 @@ const createMainWindow = () => {
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
   }
-};
+}
+
+function getAvailableTools() {
+  const tools: Tool[] = [];
+
+  try {
+    const toolDirs = fs.readdirSync(toolsDir).filter((dir) => fs.statSync(path.join(toolsDir, dir)).isDirectory());
+    for (const dir of toolDirs) {
+      try {
+        // Dynamic import would be ideal, but for simplicity we'll use require
+        const toolPath = path.join(toolsDir, dir, 'index.js');
+        const toolModule = require(toolPath).default;
+
+        tools.push({
+          id: toolModule.id,
+          name: toolModule.name,
+          description: toolModule.description,
+        });
+        console.log(`Loaded tool: ${toolModule.id} - ${toolModule.description}`);
+      } catch (err) {
+        console.error(`Error loading tool from directory ${dir}:`, err);
+      }
+    }
+    console.log(`Loaded ${tools.length} tools`);
+  } catch (err) {
+    console.error('Error scanning tools directory:', err);
+  }
+
+  return tools;
+}
 
 app.on('window-all-closed', () => {
   // Quit when all windows are closed, except on macOS. There, it's common
@@ -78,35 +107,19 @@ app.on('activate', () => {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-function getAvailableTools() {
-  const tools: Tool[] = [];
-
-  try {
-    const toolDirs = fs.readdirSync(toolsDir).filter((dir) => fs.statSync(path.join(toolsDir, dir)).isDirectory());
-    for (const dir of toolDirs) {
-      try {
-        // Dynamic import would be ideal, but for simplicity we'll use require
-        const toolPath = app.isPackaged
-          ? path.join(toolsDir, dir, 'index.js') // In production, it's compiled to .js
-          : path.join(toolsDir, dir, 'index.ts'); // In development, it's .ts
-        const toolModule = require(toolPath).default;
-
-        tools.push(toolModule);
-        console.log(`Loaded tool: ${toolModule.id} - ${toolModule.description}`);
-      } catch (err) {
-        console.error(`Error loading tool from directory ${dir}:`, err);
-      }
-    }
-    console.log(`Loaded ${tools.length} tools`);
-  } catch (err) {
-    console.error('Error scanning tools directory:', err);
-  }
-
-  return tools;
-}
-
 // Some APIs can only be used after this event occurs.
 app.on('ready', function () {
   createMainWindow();
+
+  ipcMain.handle('get-tools-dir', () => toolsDir);
   ipcMain.handle('get-available-tools', getAvailableTools);
+  ipcMain.handle('run-tool', async (ev, toolId, ...args) => {
+    const toolPath = path.join(toolsDir, toolId, 'index.js');
+    const tool = require(toolPath).default;
+
+    return tool.handler(args).catch((err: unknown) => {
+      console.error(`Error running tool ${toolId}:`, err);
+      return `Error running tool ${toolId}: ${(err as Error).message}`;
+    });
+  });
 });
