@@ -19,6 +19,14 @@ body {
   height: 100%;
 }
 
+body[data-scroll-locked] {
+  /* Radix-UI/select is manipulating this, it is fine for browsers, not so much for Electron window(s) */
+  /* https://old.reddit.com/r/nextjs/comments/1cy83ko/radix_datascrolllocked/ */
+  padding-left: 8px !important;
+  padding-top: 8px !important;
+  padding-right: 8px !important;
+}
+
 button {
   cursor: pointer;
 }
