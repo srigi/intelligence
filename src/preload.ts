@@ -81,7 +81,7 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
     const contents = [
       {
         role: 'user',
-        parts: [{ text: `${message} Use the provided tool(s) preemptively!` }],
+        parts: [{ text: `${message} Use the provided tool(s) preemptively, don't wait for user's response!` }],
       },
     ];
     let i = 0;
