@@ -11,7 +11,7 @@ import { Tool } from '~/types/Tool';
 import { debounce } from '~/utils/debounce';
 
 const settings = new ElectronStore<Settings>();
-const toolsDir = app.isPackaged ? path.join(app.getPath('userData'), 'tools') : path.join(process.cwd(), 'src/tools');
+const toolsDir = app.isPackaged ? path.join(app.getPath('userData'), 'tools') : path.join(process.cwd(), 'tools');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
