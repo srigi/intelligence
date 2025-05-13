@@ -74,6 +74,8 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
       .map((tool) => ({
         name: tool.id,
         description: tool.description,
+        parameters: tool.parameters,
+        required: tool.required,
       }));
 
     const contents = [

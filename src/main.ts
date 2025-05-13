@@ -74,6 +74,8 @@ function getAvailableTools() {
           id: toolModule.id,
           name: toolModule.name,
           description: toolModule.description,
+          parameters: toolModule.parameters,
+          required: toolModule.required,
         });
         console.log(`Loaded tool: ${toolModule.id} - ${toolModule.description}`);
       } catch (err) {
@@ -117,7 +119,7 @@ app.on('ready', function () {
     const toolPath = path.join(toolsDir, toolId, 'index.js');
     const tool = require(toolPath).default;
 
-    return tool.handler(args).catch((err: unknown) => {
+    return tool.handler(...args).catch((err: unknown) => {
       console.error(`Error running tool ${toolId}:`, err);
       return `Error running tool ${toolId}: ${(err as Error).message}`;
     });
