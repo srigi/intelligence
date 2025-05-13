@@ -11,9 +11,7 @@ type Props = {
 
 export default function PromptArea({ onSubmit, onModelChange, onModelTest, savedModelId, submittingEnabled }: Props) {
   const [selectedModelId, setSelectedModelId] = useState(savedModelId);
-  const [prompt, setPrompt] = useState<string>(
-    'Please add a calendar event for me. Lunch with Alice on this Thursday (15th of May) at Brno, Padagali, 13:00. Add it to my "Relaxation" calendar.',
-  );
+  const [prompt, setPrompt] = useState<string>();
 
   return (
     <main className="flex flex-col rounded-md border border-primary-200 bg-primary-700 shadow-sm">

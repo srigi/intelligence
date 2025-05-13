@@ -1,6 +1,6 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
-import { GenerateContentResponse } from '@google/genai';
+import { GenerateContentResponse, createPartFromUri } from '@google/genai';
 import { contextBridge, ipcRenderer } from 'electron';
 import ElectronStore from 'electron-store';
 
@@ -101,11 +101,37 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
 
       contents.push({ role: 'model', parts: [{ text: JSON.stringify(res.functionCalls) }] });
 
-      const functionCallResults = await Promise.all(res.functionCalls.map(async (fc) => [fc.name, await this.runTool(fc.name, fc.args)]));
-      contents.push({
-        role: 'user',
-        parts: [{ text: JSON.stringify(functionCallResults.map(([name, result]) => ({ [name]: result }))) }],
-      });
+      const functionCallResults = await Promise.all(
+        res.functionCalls.map(async (fc): Promise<[string, Record<string, unknown>]> => [fc.name!, await this.runTool(fc.name, fc.args)]),
+      );
+      console.log('>>> prld:loop.functionCallResults', functionCallResults);
+
+      // Check if photos_get_last_photo was called
+      const photoToolCall = functionCallResults.find(([name]) => name === 'photos_get_last_photo');
+      if (photoToolCall) {
+        const [name, result] = photoToolCall as [string, { lastPhotoFilePath: string }];
+        const photoPath = result.lastPhotoFilePath;
+        const uploadRes = await ipcRenderer.invoke('upload-image', photoPath);
+        const part = createPartFromUri(uploadRes.uri, uploadRes.mimeType);
+        if (part.fileData == null) {
+          throw new Error('Failed to upload photo to Google Cloud Storage. Empty fileData.');
+        }
+
+        contents.push({
+          role: 'user',
+          parts: [
+            { text: JSON.stringify({ name, result }) },
+            // @ts-expect-error createPartFromUri returns part without text
+            part,
+          ],
+        });
+      } else {
+        contents.push({
+          role: 'user',
+          parts: [{ text: JSON.stringify(functionCallResults.map(([name, result]) => ({ [name]: result }))) }],
+        });
+      }
+      console.log('>>> prld:loop.contents', contents);
     } while (i < MAX_TOOLS_ITERATIONS);
 
     return res.text;

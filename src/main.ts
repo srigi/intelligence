@@ -8,6 +8,7 @@ import path from 'node:path';
 import { MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT } from '~/constants/MainWindow';
 import { Settings } from '~/types/Settings';
 import { Tool } from '~/types/Tool';
+import { client } from '~/lib/gemini';
 import { debounce } from '~/utils/debounce';
 
 const settings = new ElectronStore<Settings>();
@@ -123,5 +124,17 @@ app.on('ready', function () {
       console.error(`Error running tool ${toolId}:`, err);
       return `Error running tool ${toolId}: ${(err as Error).message}`;
     });
+  });
+  ipcMain.handle('upload-image', async (ev, filePath: string) => {
+    const uploadRes = await client.files.upload({ file: filePath, config: { mimeType: 'image/jpeg' } });
+
+    if (uploadRes.uri == null) {
+      throw new Error('Failed to upload photo to Google Cloud Storage. URI not defined.');
+    }
+    if (uploadRes.mimeType == null) {
+      throw new Error('Failed to upload photo to Google Cloud Storage. Mime-Type not defined.');
+    }
+
+    return uploadRes;
   });
 });

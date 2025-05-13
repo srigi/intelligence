@@ -17,13 +17,15 @@
     "@radix-ui/react-select": "~2.2",
     "@radix-ui/react-switch": "~1.2",
     "@radix-ui/react-toast": "~1.2",
+    "bufferutil": "~4.0",
     "class-variance-authority": "^0.7",
     "clsx": "~2.1",
     "electron-squirrel-startup": "~1.0",
     "electron-store": "~8.2",
     "react": "~19.1",
     "react-dom": "~19.1",
-    "tailwind-merge": "~3.3"
+    "tailwind-merge": "~3.3",
+    "utf-8-validate": "~6.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "~7.8",
