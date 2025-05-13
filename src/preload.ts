@@ -63,7 +63,7 @@ contextBridge.exposeInMainWorld('GeminiSiri', {
       contents: 'Ping!',
     });
 
-    return res.text === 'Ping!' || res.text === 'Pong!';
+    return res.text?.includes('Ping!') || res.text?.includes('Pong!');
   },
   async sendMessage(message: string) {
     const model = settings.store.geminiModelId;
